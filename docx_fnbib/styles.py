@@ -6,6 +6,8 @@ from lxml import etree
 from .ooxml import qn, w
 
 _STYLE_XML = {
+    # No <w:rPr> size override: footnote text inherits the document's default
+    # font/size (docDefaults -> Normal), so it matches the body settings.
     "FootnoteText": """
       <w:style xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
                w:type="paragraph" w:styleId="FootnoteText">
@@ -16,7 +18,6 @@ _STYLE_XML = {
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>
-        <w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr>
       </w:style>""",
     "FootnoteReference": """
       <w:style xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"

@@ -14,6 +14,7 @@ from lxml import etree
 from .ooxml import RT_FOOTNOTES, CT_FOOTNOTES, qn, w
 from .package_tools import add_part, get_or_none, part_xml, replace_blob
 from .styles import ensure_styles
+from .docsettings import ensure_footnote_properties
 
 _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
@@ -52,6 +53,7 @@ class FootnoteManager:
         else:
             self._root = part_xml(self._part)
         ensure_styles(document, ["FootnoteText", "FootnoteReference"])
+        ensure_footnote_properties(document)
 
     # -- internals -------------------------------------------------------
     def _footnote_els(self):
