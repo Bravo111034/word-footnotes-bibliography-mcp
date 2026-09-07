@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "word-footnotes-bibliography-mcp"
+version = "0.1.0"
+description = "MCP server for footnotes and bibliography in Microsoft Word (.docx) documents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["mcp", "docx", "word", "footnotes", "bibliography", "citations", "apa", "mla", "chicago"]
+dependencies = [
+    "mcp>=2.1",
+    "python-docx>=1.1.2",
+    "lxml>=5.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[project.scripts]
+docx-fnbib-mcp = "server:main"
+
+[tool.setuptools]
+py-modules = ["server"]
+
+[tool.setuptools.packages.find]
+include = ["docx_fnbib*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
