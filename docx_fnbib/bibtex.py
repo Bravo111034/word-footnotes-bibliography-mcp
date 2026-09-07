@@ -41,10 +41,35 @@ def _people(value: str) -> list[Contributor]:
     return out
 
 
+def _iter_entries(text: str):
+    """Yield (etype, key, body) for each @type{...} block, brace-matched."""
+    i = 0
+    while True:
+        at = text.find("@", i)
+        if at == -1:
+            return
+        brace = text.find("{", at)
+        if brace == -1:
+            return
+        etype = text[at + 1 : brace].strip().lower()
+        depth, j = 1, brace + 1
+        while j < len(text) and depth:
+            c = text[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        inner = text[brace + 1 : j - 1]
+        comma = inner.find(",")
+        if comma != -1 and re.match(r"[^=\s]+$", inner[:comma].strip()):
+            yield etype, inner[:comma].strip(), inner[comma + 1 :]
+        i = j
+
+
 def parse_bibtex(text: str) -> list[Source]:
     sources: list[Source] = []
-    for m in re.finditer(r"@(\w+)\s*\{\s*([^,]+),(.*?)\n\}", text, re.S):
-        etype, key, body = m.group(1).lower(), m.group(2).strip(), m.group(3)
+    for etype, key, body in _iter_entries(text):
         fields: dict[str, str] = {}
         for fm in re.finditer(
             r"(\w+)\s*=\s*(\{(?:[^{}]|\{[^{}]*\})*\}|\"[^\"]*\"|[^,\n]+)", body
