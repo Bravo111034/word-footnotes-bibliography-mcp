@@ -18,11 +18,11 @@ class AuraDesktopApp extends StatelessWidget {
       theme: AuraTheme.light,
       darkTheme: AuraTheme.dark,
       themeMode: ThemeMode.system,
-      home: Scaffold(
+      home: const Scaffold(
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               AuraIntelligenceIndicator(state: AuraState.idle, size: 64),
               SizedBox(height: AuraSpace.md),
               AuraGradientText('Aura AI', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),

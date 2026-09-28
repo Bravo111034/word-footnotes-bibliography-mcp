@@ -24,11 +24,11 @@ class WidgetCatalogScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AuraSpace.xl),
-          _Section(
+          const _Section(
             title: 'Status Badges',
             child: Wrap(
               spacing: AuraSpace.sm,
-              children: const [
+              children: [
                 AuraStatusBadge(label: 'NEUTRAL'),
                 AuraStatusBadge(label: 'ACTIVE', tone: AuraBadgeTone.violet),
                 AuraStatusBadge(label: 'DONE', tone: AuraBadgeTone.success),
@@ -48,10 +48,10 @@ class WidgetCatalogScreen extends StatelessWidget {
                   child: const Text('AuraCard — tappable surface with hairline border'),
                 ),
                 const SizedBox(height: AuraSpace.sm),
-                AuraBorder(
+                const AuraBorder(
                   child: Padding(
-                    padding: const EdgeInsets.all(AuraSpace.md),
-                    child: const Text('AuraBorder — border only, no surface fill'),
+                    padding: EdgeInsets.all(AuraSpace.md),
+                    child: Text('AuraBorder — border only, no surface fill'),
                   ),
                 ),
               ],
