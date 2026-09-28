@@ -211,6 +211,28 @@ apps/desktop/            Flutter app — macOS / Windows / Linux
 - Home's "Research" quick action and voice research intents open
   `ResearchHomeScreen`; other voice intents open Chat with the transcript
 
+### Phase 4 — Projects, Tasks, Memory & Create Studio (this commit)
+
+- `HomeShell` — bottom-nav shell (Home / Create / Tasks / Projects) so
+  Phase 4's screens are reachable; Splash and Onboarding now route here
+  instead of straight to `HomeScreen`
+- `ProjectsScreen` — project cards (name, description, last activity,
+  active-task count) opening `ProjectWorkspaceScreen`
+- `ProjectWorkspaceScreen` — tabbed layout (Overview / Chat / Research /
+  Files / Notes / Tasks / Memory / Published); Chat, Research, Tasks, and
+  Memory tabs embed their real screens, the rest are placeholders
+- `TaskCenterScreen` — Active / Scheduled / Awaiting Approval / Completed /
+  Failed tabs with progress rows, opening `TaskDetailScreen` (objective,
+  plan timeline, Pause/Stop)
+- `MemoryManagerScreen` — User / Project / Saved Knowledge / Preferences
+  sections with a search field (UI-only until the memory backend lands)
+- `CreateStudioScreen` — hero input + an 11-category grid, each routing
+  into Chat with a seeded prompt
+
+**Deferred from the roadmap's P4 list** (kept out to stay incremental):
+`Library`/file manager, `Image Studio`, and the agent-permissions UI for
+consequential actions — these land in a follow-up pass.
+
 ### Running it
 
 Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
@@ -225,5 +247,5 @@ flutter run              # or: flutter test / flutter analyze
 
 ### What's next
 
-Phase 4 (projects, tasks, memory & create studio) per the roadmap — see
-the project roadmap artifact for the full phase breakdown.
+Phase 5 (publishing, analytics, settings & full mobile UI) per the
+roadmap — see the project roadmap artifact for the full phase breakdown.

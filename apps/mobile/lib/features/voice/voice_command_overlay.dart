@@ -11,8 +11,8 @@ class VoiceCommandOverlay extends StatefulWidget {
   final VoicePipeline pipeline;
   final IntentRouter router;
 
-  static Future<Intent?> show(BuildContext context, {required VoicePipeline pipeline, required IntentRouter router}) {
-    return showModalBottomSheet<Intent>(
+  static Future<VoiceIntent?> show(BuildContext context, {required VoicePipeline pipeline, required IntentRouter router}) {
+    return showModalBottomSheet<VoiceIntent>(
       context: context,
       isScrollControlled: true,
       builder: (_) => VoiceCommandOverlay(pipeline: pipeline, router: router),
@@ -25,7 +25,7 @@ class VoiceCommandOverlay extends StatefulWidget {
 
 class _VoiceCommandOverlayState extends State<VoiceCommandOverlay> {
   VoiceEvent _event = const VoiceEvent(state: VoiceState.idle);
-  Intent? _routedIntent;
+  VoiceIntent? _routedIntent;
 
   @override
   void initState() {

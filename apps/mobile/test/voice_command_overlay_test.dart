@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('VoiceCommandOverlay routes the scripted transcript and returns the intent', (tester) async {
-    Intent? result;
+    VoiceIntent? result;
 
     await tester.pumpWidget(
       MaterialApp(

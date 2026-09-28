@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/state/auth_state.dart';
 import '../auth/sign_in_screen.dart';
-import '../home/home_screen.dart';
+import '../home/home_shell.dart';
 import '../onboarding/onboarding_screen.dart';
 
 /// Shows the animated Aura orb while [authControllerProvider] restores the
@@ -23,7 +23,7 @@ class SplashScreen extends ConsumerWidget {
       } else if (!next.hasCompletedOnboarding) {
         destination = const OnboardingScreen();
       } else {
-        destination = const HomeScreen();
+        destination = const HomeShell();
       }
 
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => destination));

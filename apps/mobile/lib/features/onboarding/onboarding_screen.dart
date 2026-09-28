@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/state/auth_state.dart';
-import '../home/home_screen.dart';
+import '../home/home_shell.dart';
 
 class _OnboardingStep {
   const _OnboardingStep({required this.icon, required this.title, required this.body});
@@ -36,7 +36,7 @@ const _steps = [
   ),
 ];
 
-/// A 4-step swipeable intro, ending in [HomeScreen] once the user finishes
+/// A 4-step swipeable intro, ending in [HomeShell] once the user finishes
 /// or skips.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -58,7 +58,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _finish() async {
     await ref.read(authControllerProvider.notifier).completeOnboarding();
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomeShell()));
   }
 
   @override
