@@ -73,7 +73,7 @@ class _PublishingWorkflowDrawerState extends State<PublishingWorkflowDrawer> {
         description: 'This content will be published to its selected destinations once you continue.',
         confirmLabel: 'Approve',
       );
-      if (!approved) return;
+      if (!approved || !mounted) return;
     }
 
     if (_step == _steps.length - 1) {
