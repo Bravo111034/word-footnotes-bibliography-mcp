@@ -21,10 +21,10 @@ class AuraStatusBadge extends StatelessWidget {
     final aura = context.aura;
     final (bg, fg) = switch (tone) {
       AuraBadgeTone.neutral => (aura.surface2, aura.text2),
-      AuraBadgeTone.violet => (AuraColors.violet.withOpacity(0.12), AuraColors.violet),
-      AuraBadgeTone.success => (AuraColors.success.withOpacity(0.12), AuraColors.success),
-      AuraBadgeTone.warning => (AuraColors.warning.withOpacity(0.12), AuraColors.warning),
-      AuraBadgeTone.error => (AuraColors.error.withOpacity(0.12), AuraColors.error),
+      AuraBadgeTone.violet => (AuraColors.violet.withValues(alpha: 0.12), AuraColors.violet),
+      AuraBadgeTone.success => (AuraColors.success.withValues(alpha: 0.12), AuraColors.success),
+      AuraBadgeTone.warning => (AuraColors.warning.withValues(alpha: 0.12), AuraColors.warning),
+      AuraBadgeTone.error => (AuraColors.error.withValues(alpha: 0.12), AuraColors.error),
     };
 
     return Container(

@@ -127,7 +127,7 @@ class _AuraIndicatorPainter extends CustomPainter {
       ..shader = AuraColors.brandGradient
           .createShader(Rect.fromCircle(center: center, radius: radius))
       ..style = PaintingStyle.fill
-      ..color = Colors.white.withOpacity(opacity);
+      ..color = Colors.white.withValues(alpha: opacity);
     canvas.drawCircle(center, radius, paint);
   }
 
