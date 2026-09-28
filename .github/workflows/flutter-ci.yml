@@ -52,7 +52,13 @@ jobs:
         run: flutter pub get
       - name: Build APK (debug)
         working-directory: apps/mobile
-        run: flutter build apk --debug
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+        run: >
+          flutter build apk --debug
+          --dart-define=OPENAI_API_KEY=$OPENAI_API_KEY
+          --dart-define=BRAVE_API_KEY=$BRAVE_API_KEY
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
@@ -84,7 +90,13 @@ jobs:
         run: flutter pub get
       - name: Build web (release)
         working-directory: apps/mobile
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+        run: >
+          flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+          --dart-define=OPENAI_API_KEY=$OPENAI_API_KEY
+          --dart-define=BRAVE_API_KEY=$BRAVE_API_KEY
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -114,4 +126,10 @@ jobs:
         run: flutter pub get
       - name: Build iOS (no codesign, simulator)
         working-directory: apps/mobile
-        run: flutter build ios --simulator --no-codesign
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+        run: >
+          flutter build ios --simulator --no-codesign
+          --dart-define=OPENAI_API_KEY=$OPENAI_API_KEY
+          --dart-define=BRAVE_API_KEY=$BRAVE_API_KEY

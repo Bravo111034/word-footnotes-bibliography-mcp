@@ -4,9 +4,10 @@ import 'package:aura_ai_gateway/aura_ai_gateway.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Which [AiProvider] backs each [AiMode] preset, until per-mode routing
-/// (cost/latency-aware selection) replaces this fixed map.
-const _modeProviders = {
-  AiMode.auto: AiProvider.anthropic,
+/// (cost/latency-aware selection) replaces this fixed map. "Auto" prefers
+/// whichever provider actually has a real key configured.
+final _modeProviders = {
+  AiMode.auto: AiConfig.hasOpenAiKey ? AiProvider.openai : AiProvider.anthropic,
   AiMode.fast: AiProvider.anthropic,
   AiMode.balanced: AiProvider.openai,
   AiMode.deep: AiProvider.anthropic,
@@ -14,7 +15,7 @@ const _modeProviders = {
   AiMode.creative: AiProvider.openai,
 };
 
-final aiGatewayProvider = Provider<AiGateway>((ref) => const MockAiGateway());
+final aiGatewayProvider = Provider<AiGateway>((ref) => CompositeAiGateway());
 
 final aiModeProvider = StateProvider<AiMode>((ref) => AiMode.auto);
 

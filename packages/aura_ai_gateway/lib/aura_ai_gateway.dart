@@ -6,3 +6,6 @@ export 'src/ai_provider.dart';
 export 'src/chat_message.dart';
 export 'src/ai_gateway.dart';
 export 'src/mock_ai_gateway.dart';
+export 'src/ai_config.dart';
+export 'src/openai_gateway.dart';
+export 'src/composite_ai_gateway.dart';

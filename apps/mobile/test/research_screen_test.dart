@@ -24,8 +24,9 @@ void main() {
     await tester.tap(find.text('Report'));
     await tester.pump();
 
-    // Plan steps complete every 500ms, then the report streams word by
-    // word at 25ms/word — advance comfortably past both.
+    // Plan steps complete every 300ms, then the report streams word by
+    // word at 25ms/word — advance comfortably past both. No BRAVE_API_KEY/
+    // OPENAI_API_KEY is set in tests, so this exercises the mock fallback.
     await tester.pump(const Duration(seconds: 4));
 
     expect(find.textContaining('Research report'), findsOneWidget);

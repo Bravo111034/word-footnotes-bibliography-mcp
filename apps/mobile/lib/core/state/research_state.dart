@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:aura_ai_gateway/aura_ai_gateway.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../services/brave_search_client.dart';
 
 class ResearchStep {
   const ResearchStep({required this.label, this.done = false});
@@ -12,11 +15,12 @@ class ResearchStep {
 }
 
 class SourceItem {
-  const SourceItem({required this.title, required this.publisher, required this.credibility});
+  const SourceItem({required this.title, required this.publisher, required this.credibility, this.url});
 
   final String title;
   final String publisher;
   final String credibility;
+  final String? url;
 }
 
 class ResearchState {
@@ -26,6 +30,7 @@ class ResearchState {
     this.sources = const [],
     this.report = '',
     this.isRunning = false,
+    this.error,
   });
 
   final String query;
@@ -33,6 +38,7 @@ class ResearchState {
   final List<SourceItem> sources;
   final String report;
   final bool isRunning;
+  final String? error;
 
   ResearchState copyWith({
     String? query,
@@ -40,6 +46,7 @@ class ResearchState {
     List<SourceItem>? sources,
     String? report,
     bool? isRunning,
+    String? error,
   }) {
     return ResearchState(
       query: query ?? this.query,
@@ -47,6 +54,7 @@ class ResearchState {
       sources: sources ?? this.sources,
       report: report ?? this.report,
       isRunning: isRunning ?? this.isRunning,
+      error: error ?? this.error,
     );
   }
 }
@@ -59,12 +67,24 @@ const _mockSources = [
   SourceItem(title: 'Battery makers race for nickel', publisher: 'Reuters', credibility: 'News'),
 ];
 
-/// Drives the Active Research screen: a scripted plan, progressively
-/// "found" sources, and a streamed report. A placeholder for the real
-/// FastAPI + LangGraph agent (web search, document reading, report
-/// writing tools) described in the roadmap.
+/// Drives the Active Research screen: a plan, sources, and a report.
+///
+/// When `BRAVE_API_KEY` is configured, sources come from a real Brave
+/// Search call. When `OPENAI_API_KEY` is also configured, the report is
+/// written by a real OpenAI call grounded in those sources' snippets.
+/// Without either key, both fall back to a scripted mock so the screen
+/// still works end-to-end. This is a placeholder for the real FastAPI +
+/// LangGraph agent (multi-step planning, document reading, cross-checking)
+/// described in the roadmap — a single search + single write call, not an
+/// agent loop.
 class ResearchController extends StateNotifier<ResearchState> {
-  ResearchController() : super(const ResearchState());
+  ResearchController({BraveSearchClient? searchClient, AiGateway? aiGateway})
+      : _searchClient = searchClient ?? BraveSearchClient(),
+        _aiGateway = aiGateway ?? CompositeAiGateway(),
+        super(const ResearchState());
+
+  final BraveSearchClient _searchClient;
+  final AiGateway _aiGateway;
 
   Future<void> startResearch(String query) async {
     state = ResearchState(
@@ -73,29 +93,84 @@ class ResearchController extends StateNotifier<ResearchState> {
       isRunning: true,
     );
 
+    List<WebSearchResult> webResults = const [];
+
     for (var i = 0; i < state.steps.length; i++) {
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      if (i == 1) {
+        webResults = await _findSources(query);
+      }
+
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       final steps = [...state.steps];
       steps[i] = steps[i].copyWith(done: true);
       state = state.copyWith(steps: steps);
 
-      if (i == 1) {
-        state = state.copyWith(sources: _mockSources);
-      }
       if (i == _planLabels.length - 1) {
-        await _streamReport(query);
+        await _writeReport(query, webResults);
       }
     }
 
     state = state.copyWith(isRunning: false);
   }
 
-  Future<void> _streamReport(String query) async {
+  Future<List<WebSearchResult>> _findSources(String query) async {
+    if (!AiConfig.hasBraveSearchKey) {
+      state = state.copyWith(sources: _mockSources);
+      return const [];
+    }
+
+    try {
+      final results = await _searchClient.search(query);
+      state = state.copyWith(
+        sources: results
+            .map((r) => SourceItem(
+                  title: r.title,
+                  publisher: Uri.tryParse(r.url)?.host ?? r.url,
+                  credibility: 'Web',
+                  url: r.url,
+                ))
+            .toList(),
+      );
+      return results;
+    } catch (e) {
+      state = state.copyWith(sources: _mockSources, error: 'Web search failed: $e');
+      return const [];
+    }
+  }
+
+  Future<void> _writeReport(String query, List<WebSearchResult> webResults) async {
+    if (webResults.isEmpty || !AiConfig.hasOpenAiKey) {
+      await _streamMockReport(query);
+      return;
+    }
+
+    final groundedPrompt = StringBuffer()
+      ..writeln('Write a concise research report on: $query')
+      ..writeln()
+      ..writeln('Ground every claim in these sources and cite them by number inline like [1]:')
+      ..writeln();
+    for (var i = 0; i < webResults.length; i++) {
+      groundedPrompt.writeln('[${i + 1}] ${webResults[i].title} — ${webResults[i].snippet} (${webResults[i].url})');
+    }
+
+    final history = [ChatMessage(role: ChatRole.user, content: groundedPrompt.toString())];
+    final buffer = StringBuffer();
+    try {
+      await for (final chunk in _aiGateway.streamCompletion(history, provider: AiProvider.openai)) {
+        buffer.write(chunk);
+        state = state.copyWith(report: buffer.toString());
+      }
+    } catch (e) {
+      state = state.copyWith(error: 'Report writing failed: $e');
+      if (buffer.isEmpty) await _streamMockReport(query);
+    }
+  }
+
+  Future<void> _streamMockReport(String query) async {
     final report = 'Research report: $query\n\n'
-        'This is a placeholder report generated by the mock research agent. '
-        'A real run would ground every claim in the sources listed alongside it, '
-        'produced by web search, document reading, and cross-checking tools '
-        'orchestrated by the FastAPI + LangGraph backend.';
+        'This is a placeholder report. A real run grounds every claim in '
+        'real web sources — configure BRAVE_API_KEY and OPENAI_API_KEY to '
+        'see it write a real, cited report instead.';
 
     final words = report.split(' ');
     var buffer = '';
