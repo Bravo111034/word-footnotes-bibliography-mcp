@@ -177,6 +177,21 @@ apps/desktop/            Flutter app — macOS / Windows / Linux
 - Desktop: 3-region shell (`DesktopShell`) — sidebar + workspace + a
   collapsible context panel
 
+### Phase 2 — AI Chat + Multi-model Engine (this commit)
+
+- `packages/aura_ai_gateway` — unified `AiGateway` interface over
+  `AiProvider` (Claude, GPT, Gemini, local/offline), streaming
+  `Stream<String>` completions; `MockAiGateway` streams a canned reply so
+  chat can be built and tested before real provider SDKs are wired in
+- `ChatScreen` — conversation column, bare (non-bubble) Aura responses,
+  thinking indicator while a reply streams, message composer
+- `ModelSelector` — Auto / Fast / Balanced / Deep / Research / Creative /
+  Custom, each mapped to a provider, with a live availability pill
+- Riverpod `ChatController` streams gateway output token-by-token into the
+  message list
+- Home's quick-action chips and the Command Palette now open Chat with the
+  tapped/typed prompt as the first message
+
 ### Running it
 
 Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
@@ -191,5 +206,5 @@ flutter run              # or: flutter test / flutter analyze
 
 ### What's next
 
-Phase 2 (AI chat + multi-model engine) per the roadmap — see the project
-roadmap artifact for the full phase breakdown.
+Phase 3 (voice control + deep research agent) per the roadmap — see the
+project roadmap artifact for the full phase breakdown.

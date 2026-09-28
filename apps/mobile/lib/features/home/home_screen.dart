@@ -2,6 +2,7 @@ import 'package:aura_ui/aura_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../catalog/widget_catalog_screen.dart';
+import '../chat/chat_screen.dart';
 import '../command_palette/command_palette_overlay.dart';
 import '../notifications/notification_center_screen.dart';
 
@@ -38,7 +39,14 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: AuraSpace.md),
           Wrap(
             spacing: AuraSpace.xs,
-            children: _quickActions.map((a) => ActionChip(label: Text(a), onPressed: () {})).toList(),
+            children: _quickActions
+                .map((a) => ActionChip(
+                      label: Text(a),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => ChatScreen(initialMessage: a)),
+                      ),
+                    ))
+                .toList(),
           ),
           const SizedBox(height: AuraSpace.xl),
           const _SectionHeader('Continue working'),

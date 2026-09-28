@@ -1,6 +1,8 @@
 import 'package:aura_ui/aura_ui.dart';
 import 'package:flutter/material.dart';
 
+import '../chat/chat_screen.dart';
+
 const _recentCommands = ['Summarize the Q3 board deck', 'Research EV battery supply chains'];
 const _suggestedActions = ['Start a new research', 'Create a presentation', 'Ask about a file'];
 
@@ -33,29 +35,35 @@ class CommandPaletteOverlay extends StatelessWidget {
             children: [
               AuraCommandBar(
                 autofocus: true,
-                onSubmitted: (_) => Navigator.of(context).pop(),
+                onSubmitted: (text) => _openChat(context, text),
               ),
               const SizedBox(height: AuraSpace.lg),
               Text('RECENT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.aura.muted, letterSpacing: 1)),
               const SizedBox(height: AuraSpace.xs),
-              ..._recentCommands.map((c) => _PaletteRow(icon: Icons.history, label: c)),
+              ..._recentCommands.map((c) => _PaletteRow(icon: Icons.history, label: c, onTap: () => _openChat(context, c))),
               const SizedBox(height: AuraSpace.md),
               Text('SUGGESTED', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: context.aura.muted, letterSpacing: 1)),
               const SizedBox(height: AuraSpace.xs),
-              ..._suggestedActions.map((c) => _PaletteRow(icon: Icons.auto_awesome, label: c)),
+              ..._suggestedActions.map((c) => _PaletteRow(icon: Icons.auto_awesome, label: c, onTap: () => _openChat(context, c))),
             ],
           ),
         ),
       ),
     );
   }
+
+  static void _openChat(BuildContext context, String text) {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatScreen(initialMessage: text)));
+  }
 }
 
 class _PaletteRow extends StatelessWidget {
-  const _PaletteRow({required this.icon, required this.label});
+  const _PaletteRow({required this.icon, required this.label, required this.onTap});
 
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +71,7 @@ class _PaletteRow extends StatelessWidget {
       dense: true,
       leading: Icon(icon, size: 18, color: context.aura.text2),
       title: Text(label),
-      onTap: () => Navigator.of(context).pop(),
+      onTap: onTap,
     );
   }
 }

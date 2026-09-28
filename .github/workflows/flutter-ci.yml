@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [packages/aura_ui, apps/mobile, apps/desktop]
+        package: [packages/aura_ui, packages/aura_ai_gateway, apps/mobile, apps/desktop]
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

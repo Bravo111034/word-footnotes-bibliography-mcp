@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   aura_ui:
     path: ../../packages/aura_ui
+  aura_ai_gateway:
+    path: ../../packages/aura_ai_gateway
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.2.3
 
