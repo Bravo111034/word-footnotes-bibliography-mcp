@@ -1,4 +1,5 @@
 import 'package:aura_mobile/features/chat/chat_screen.dart';
+import 'package:aura_ui/aura_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,8 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('ChatScreen sends the initial message and streams a mock reply', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: ChatScreen(initialMessage: 'hello aura')),
+      ProviderScope(
+        child: MaterialApp(
+          theme: AuraTheme.light,
+          home: const ChatScreen(initialMessage: 'hello aura'),
+        ),
       ),
     );
 

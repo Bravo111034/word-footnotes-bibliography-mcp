@@ -1,10 +1,13 @@
 import 'package:aura_ui/aura_ui.dart';
+import 'package:aura_voice/aura_voice.dart';
 import 'package:flutter/material.dart';
 
 import '../catalog/widget_catalog_screen.dart';
 import '../chat/chat_screen.dart';
 import '../command_palette/command_palette_overlay.dart';
 import '../notifications/notification_center_screen.dart';
+import '../research/research_home_screen.dart';
+import '../voice/voice_command_overlay.dart';
 
 const _quickActions = ['Research', 'Write', 'Create image', 'Summarize'];
 const _continueWorking = ['Q3 competitive analysis', 'Blog draft: "Local-first AI"'];
@@ -30,6 +33,11 @@ class HomeScreen extends StatelessWidget {
           MaterialPageRoute(builder: (_) => const WidgetCatalogScreen()),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _startVoiceCommand(context),
+        tooltip: 'Voice command',
+        child: const Icon(Icons.mic_none),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(AuraSpace.lg),
         children: [
@@ -40,12 +48,7 @@ class HomeScreen extends StatelessWidget {
           Wrap(
             spacing: AuraSpace.xs,
             children: _quickActions
-                .map((a) => ActionChip(
-                      label: Text(a),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => ChatScreen(initialMessage: a)),
-                      ),
-                    ))
+                .map((a) => ActionChip(label: Text(a), onPressed: () => _handleQuickAction(context, a)))
                 .toList(),
           ),
           const SizedBox(height: AuraSpace.xl),
@@ -70,6 +73,29 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _handleQuickAction(BuildContext context, String action) {
+    if (action == 'Research') {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ResearchHomeScreen()));
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatScreen(initialMessage: action)));
+  }
+
+  Future<void> _startVoiceCommand(BuildContext context) async {
+    final intent = await VoiceCommandOverlay.show(
+      context,
+      pipeline: MockVoicePipeline(),
+      router: const IntentRouter(),
+    );
+    if (intent == null || !context.mounted) return;
+
+    if (intent.kind == IntentKind.research) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ResearchHomeScreen()));
+    } else if (intent.kind != IntentKind.unknown) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatScreen(initialMessage: intent.transcript)));
+    }
   }
 }
 

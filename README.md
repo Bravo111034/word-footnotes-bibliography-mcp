@@ -192,6 +192,25 @@ apps/desktop/            Flutter app — macOS / Windows / Linux
 - Home's quick-action chips and the Command Palette now open Chat with the
   tapped/typed prompt as the first message
 
+### Phase 3 — Voice Control + Deep Research Agent (this commit)
+
+- `packages/aura_voice` — provider-agnostic `VoicePipeline` (mic → partial/
+  final transcript), an `IntentRouter` (transcript → research / chat /
+  create / task / navigate, with a confidence score), and a
+  `MockVoicePipeline` standing in for Whisper.cpp (offline) / Deepgram
+  (online) until they're wired in
+- `VoiceCommandOverlay` — animated Aura orb, live transcript, and a
+  confirm/cancel step once an intent is routed; opened from Home's mic FAB
+- `ResearchHomeScreen` — query input + depth control + Start Research
+- `ActiveResearchScreen` — Plan / Report / Sources (the desktop spec's
+  3-column layout, tabbed on mobile), backed by a `ResearchController`
+  that scripts a plan, progressively "finds" sources, and streams a report
+  — a placeholder for the real FastAPI + LangGraph agent (web search,
+  document reading, cross-checking, report writing tools) and the RAG
+  memory system described in the roadmap
+- Home's "Research" quick action and voice research intents open
+  `ResearchHomeScreen`; other voice intents open Chat with the transcript
+
 ### Running it
 
 Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
@@ -206,5 +225,5 @@ flutter run              # or: flutter test / flutter analyze
 
 ### What's next
 
-Phase 3 (voice control + deep research agent) per the roadmap — see the
-project roadmap artifact for the full phase breakdown.
+Phase 4 (projects, tasks, memory & create studio) per the roadmap — see
+the project roadmap artifact for the full phase breakdown.
