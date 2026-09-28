@@ -37,20 +37,27 @@ class _PublishingWorkflowDrawerState extends State<PublishingWorkflowDrawer> {
         return Stepper(
           type: StepperType.vertical,
           currentStep: _step,
-          controlsBuilder: (context, details) => Padding(
-            padding: const EdgeInsets.only(top: AuraSpace.sm),
-            child: Row(
-              children: [
-                if (_step > 0)
-                  TextButton(onPressed: () => setState(() => _step -= 1), child: const Text('Back')),
-                const Spacer(),
-                FilledButton(
-                  onPressed: () => _advance(context),
-                  child: Text(_step == _steps.length - 1 ? 'Done' : (_step == 4 ? 'Approve' : 'Next')),
-                ),
-              ],
-            ),
-          ),
+          controlsBuilder: (context, details) {
+            // The Stepper builds every step's controls (collapsed ones are
+            // just hidden, not removed from the tree), so only render
+            // controls for the step that's actually current.
+            if (details.stepIndex != _step) return const SizedBox.shrink();
+
+            return Padding(
+              padding: const EdgeInsets.only(top: AuraSpace.sm),
+              child: Row(
+                children: [
+                  if (_step > 0)
+                    TextButton(onPressed: () => setState(() => _step -= 1), child: const Text('Back')),
+                  const Spacer(),
+                  FilledButton(
+                    onPressed: () => _advance(context),
+                    child: Text(_step == _steps.length - 1 ? 'Done' : (_step == 4 ? 'Approve' : 'Next')),
+                  ),
+                ],
+              ),
+            );
+          },
           steps: [
             for (var i = 0; i < _steps.length; i++)
               Step(

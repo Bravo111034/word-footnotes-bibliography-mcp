@@ -34,6 +34,13 @@ void main() {
     await tester.pumpWidget(_wrap(const MemoryManagerScreen()));
     await tester.pump();
 
+    // The Preferences section is below the fold in a lazily-built
+    // ListView, so scroll it into view before asserting on it.
+    await tester.dragUntilVisible(
+      find.text('Default model: Balanced'),
+      find.byType(ListView),
+      const Offset(0, -300),
+    );
     expect(find.text('Default model: Balanced'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.delete_outline).last);
