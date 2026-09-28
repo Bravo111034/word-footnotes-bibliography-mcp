@@ -12,10 +12,11 @@ import 'chat_message.dart';
 /// tokens as they arrive via server-sent events. Requires
 /// [AiConfig.openAiApiKey] to be set at build time.
 ///
-/// Only [AiProvider.openai] is backed by a real call; every other provider
-/// still falls back to a canned reply, since only an OpenAI key was
-/// configured. Add a sibling class per provider (Anthropic, Gemini) the
-/// same way once those keys are available.
+/// Since only an OpenAI key was configured, [CompositeAiGateway] routes
+/// every provider preset (not just [AiProvider.openai]) through this real
+/// call rather than leaving Anthropic/Gemini-labeled modes on the mock.
+/// Add a sibling class per provider the same way once those keys are
+/// available, and have `CompositeAiGateway` prefer it for its own label.
 class OpenAiGateway implements AiGateway {
   OpenAiGateway({http.Client? client}) : _client = client ?? http.Client();
 
@@ -24,14 +25,11 @@ class OpenAiGateway implements AiGateway {
   static const _endpoint = 'https://api.openai.com/v1/chat/completions';
 
   @override
-  bool isAvailable(AiProvider provider) {
-    if (provider == AiProvider.openai) return AiConfig.hasOpenAiKey;
-    return false;
-  }
+  bool isAvailable(AiProvider provider) => AiConfig.hasOpenAiKey;
 
   @override
   Stream<String> streamCompletion(List<ChatMessage> history, {required AiProvider provider}) async* {
-    if (provider != AiProvider.openai || !AiConfig.hasOpenAiKey) {
+    if (!AiConfig.hasOpenAiKey) {
       yield "This provider isn't configured with a real API key yet — "
           'only OpenAI is wired up. Falling back to a placeholder reply.';
       return;

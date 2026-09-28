@@ -13,9 +13,9 @@ void main() {
     expect(chunks.join(), contains("isn't configured"));
   });
 
-  test('OpenAiGateway reports every non-OpenAI provider as unavailable', () {
+  test('OpenAiGateway reports every provider as unavailable without a key', () {
     final gateway = OpenAiGateway();
-    for (final provider in AiProvider.values.where((p) => p != AiProvider.openai)) {
+    for (final provider in AiProvider.values) {
       expect(gateway.isAvailable(provider), isFalse);
     }
   });

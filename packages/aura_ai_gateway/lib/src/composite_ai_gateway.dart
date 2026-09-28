@@ -16,15 +16,22 @@ class CompositeAiGateway implements AiGateway {
   final OpenAiGateway _openAi;
   final MockAiGateway _mock;
 
+  /// True once a provider that actually has a real backend implemented
+  /// here is configured. Until Anthropic/Gemini/etc. get their own real
+  /// clients, OpenAI is the only one — so every preset mode (Fast, Deep,
+  /// Research, ...) routes there rather than silently serving mock text
+  /// just because its label says a provider without a wired key.
+  bool get _hasAnyRealBackend => AiConfig.hasOpenAiKey;
+
   @override
   bool isAvailable(AiProvider provider) {
-    if (provider == AiProvider.openai && AiConfig.hasOpenAiKey) return true;
+    if (_hasAnyRealBackend) return true;
     return _mock.isAvailable(provider);
   }
 
   @override
   Stream<String> streamCompletion(List<ChatMessage> history, {required AiProvider provider}) {
-    if (provider == AiProvider.openai && AiConfig.hasOpenAiKey) {
+    if (AiConfig.hasOpenAiKey) {
       return _openAi.streamCompletion(history, provider: provider);
     }
     return _mock.streamCompletion(history, provider: provider);
