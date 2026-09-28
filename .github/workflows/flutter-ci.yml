@@ -44,6 +44,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Generate Android platform project
+        working-directory: apps/mobile
+        run: flutter create --platforms=android --org com.aura.ai .
       - name: Install dependencies
         working-directory: apps/mobile
         run: flutter pub get
@@ -60,6 +63,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Generate iOS platform project
+        working-directory: apps/mobile
+        run: flutter create --platforms=ios --org com.aura.ai .
       - name: Install dependencies
         working-directory: apps/mobile
         run: flutter pub get
