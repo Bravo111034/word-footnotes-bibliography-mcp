@@ -1,0 +1,141 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'apps/**'
+      - '.github/workflows/flutter-ci.yml'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - 'apps/**'
+      - '.github/workflows/flutter-ci.yml'
+
+jobs:
+  lint-and-test:
+    name: Lint & test (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [packages/aura_ui, packages/aura_ai_gateway, packages/aura_voice, apps/mobile, apps/desktop]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install dependencies
+        working-directory: ${{ matrix.package }}
+        run: flutter pub get
+      - name: Analyze
+        working-directory: ${{ matrix.package }}
+        run: flutter analyze
+      - name: Test
+        working-directory: ${{ matrix.package }}
+        run: flutter test
+
+  build-android:
+    name: Build Android (apps/mobile)
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Generate Android platform project
+        working-directory: apps/mobile
+        run: flutter create --platforms=android --org com.aura.ai .
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+      - name: Build APK (debug)
+        working-directory: apps/mobile
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          SEARXNG_URL: ${{ secrets.SEARXNG_URL }}
+        run: >
+          flutter build apk --debug
+          --dart-define=OPENAI_API_KEY=$OPENAI_API_KEY
+          --dart-define=BRAVE_API_KEY=$BRAVE_API_KEY
+          --dart-define=SEARXNG_URL=$SEARXNG_URL
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-mobile-debug-apk
+          path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+  build-web:
+    name: Build web (apps/mobile)
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Generate web platform project
+        working-directory: apps/mobile
+        run: flutter create --platforms=web --org com.aura.ai .
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+      - name: Build web (release)
+        working-directory: apps/mobile
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          SEARXNG_URL: ${{ secrets.SEARXNG_URL }}
+        run: >
+          flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+          --dart-define=OPENAI_API_KEY=$OPENAI_API_KEY
+          --dart-define=BRAVE_API_KEY=$BRAVE_API_KEY
+          --dart-define=SEARXNG_URL=$SEARXNG_URL
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/mobile/build/web
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  build-ios:
+    name: Build iOS simulator (apps/mobile)
+    runs-on: macos-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Generate iOS platform project
+        working-directory: apps/mobile
+        run: flutter create --platforms=ios --org com.aura.ai .
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+      - name: Build iOS (no codesign, simulator)
+        working-directory: apps/mobile
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          SEARXNG_URL: ${{ secrets.SEARXNG_URL }}
+        run: >
+          flutter build ios --simulator --no-codesign
+          --dart-define=OPENAI_API_KEY=$OPENAI_API_KEY
+          --dart-define=BRAVE_API_KEY=$BRAVE_API_KEY
+          --dart-define=SEARXNG_URL=$SEARXNG_URL

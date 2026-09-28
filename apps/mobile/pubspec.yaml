@@ -1,0 +1,29 @@
+name: aura_mobile
+description: Aura AI — mobile app (iOS / Android).
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aura_ui:
+    path: ../../packages/aura_ui
+  aura_ai_gateway:
+    path: ../../packages/aura_ai_gateway
+  aura_voice:
+    path: ../../packages/aura_voice
+  flutter_riverpod: ^2.5.1
+  shared_preferences: ^2.2.3
+  http: ^1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

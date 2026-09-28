@@ -1,5 +1,12 @@
 # word-footnotes-bibliography-mcp
 
+> **Aura AI build-out in progress.** This repository is being grown into
+> **Aura AI**, a voice-controlled AI research agent shipping as a Flutter
+> app (mobile + desktop). The Flutter workspace lives under `packages/`
+> and `apps/`; see [Aura AI (Flutter)](#aura-ai-flutter) below for its
+> phased roadmap and current status. The original Python MCP server
+> described below is unaffected and continues to work standalone.
+
 A self-contained [Model Context Protocol](https://modelcontextprotocol.io)
 server that adds **footnotes**, **in-text citations**, and a **bibliography /
 references / works-cited** section to Microsoft Word `.docx` files — without
@@ -125,3 +132,257 @@ pytest
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+## Aura AI (Flutter)
+
+Aura AI is a voice-controlled AI research agent — chat, deep research,
+memory, task orchestration, and publishing — shipping as a Flutter app
+across mobile and desktop. It's being built in phases; **Phase 0
+(Foundation)** is scaffolded here.
+
+```
+packages/aura_ui/        shared design system (tokens, theme, primitives)
+apps/mobile/             Flutter app — iOS / Android
+apps/desktop/            Flutter app — macOS / Windows / Linux
+.github/workflows/       flutter-ci.yml — lint → test → build
+```
+
+### Phase 0 — Foundation (this commit)
+
+- `AuraColors` / `AuraSpace` / `AuraRadius` / `AuraMotion` design tokens
+  (`packages/aura_ui/lib/src/theme/aura_tokens.dart`)
+- `AuraTheme.light` / `AuraTheme.dark`, full color-scheme coverage
+- `AuraIntelligenceIndicator` — the 7-state animated signature widget
+  (idle → thinking → searching → creating → executing → complete → error)
+- Primitives: `AuraStatusBadge`, `AuraCard`, `AuraBorder`, `AuraGradientText`
+- A widget catalog screen (`apps/mobile/lib/features/catalog`) for live UI QA
+- CI: lint, test, and build (Android + iOS simulator) on every push
+
+### Phase 1 — Auth, Home & Command Palette (this commit)
+
+- `AuthController` (Riverpod `StateNotifier`) — persists a signed-in flag
+  and onboarding completion via `shared_preferences`; scaffolded ahead of
+  real Supabase email/Google auth
+- Mobile flow: `SplashScreen` → `SignInScreen` → `OnboardingScreen` (4
+  swipeable steps) → `HomeScreen`
+- `HomeScreen` — greeting, `AuraCommandBar`, quick-action chips, Continue
+  Working / Active Tasks rows, Recent Work grid
+- `CommandPaletteOverlay` — full-screen ⌘K-style palette with recent
+  commands and suggested actions
+- `NotificationCenterScreen` — category-tabbed notifications (mocked data)
+- Shared layout primitives added to `aura_ui`: `AuraCommandBar`,
+  `AuraTopBar`, `AuraSidebar`
+- Desktop: 3-region shell (`DesktopShell`) — sidebar + workspace + a
+  collapsible context panel
+
+### Phase 2 — AI Chat + Multi-model Engine (this commit)
+
+- `packages/aura_ai_gateway` — unified `AiGateway` interface over
+  `AiProvider` (Claude, GPT, Gemini, local/offline), streaming
+  `Stream<String>` completions; `MockAiGateway` streams a canned reply so
+  chat can be built and tested before real provider SDKs are wired in
+- `ChatScreen` — conversation column, bare (non-bubble) Aura responses,
+  thinking indicator while a reply streams, message composer
+- `ModelSelector` — Auto / Fast / Balanced / Deep / Research / Creative /
+  Custom, each mapped to a provider, with a live availability pill
+- Riverpod `ChatController` streams gateway output token-by-token into the
+  message list
+- Home's quick-action chips and the Command Palette now open Chat with the
+  tapped/typed prompt as the first message
+
+### Phase 3 — Voice Control + Deep Research Agent (this commit)
+
+- `packages/aura_voice` — provider-agnostic `VoicePipeline` (mic → partial/
+  final transcript), an `IntentRouter` (transcript → research / chat /
+  create / task / navigate, with a confidence score), and a
+  `MockVoicePipeline` standing in for Whisper.cpp (offline) / Deepgram
+  (online) until they're wired in
+- `VoiceCommandOverlay` — animated Aura orb, live transcript, and a
+  confirm/cancel step once an intent is routed; opened from Home's mic FAB
+- `ResearchHomeScreen` — query input + depth control + Start Research
+- `ActiveResearchScreen` — Plan / Report / Sources (the desktop spec's
+  3-column layout, tabbed on mobile), backed by a `ResearchController`
+  that scripts a plan, progressively "finds" sources, and streams a report
+  — a placeholder for the real FastAPI + LangGraph agent (web search,
+  document reading, cross-checking, report writing tools) and the RAG
+  memory system described in the roadmap
+- Home's "Research" quick action and voice research intents open
+  `ResearchHomeScreen`; other voice intents open Chat with the transcript
+
+### Phase 4 — Projects, Tasks, Memory & Create Studio (this commit)
+
+- `HomeShell` — bottom-nav shell so Phase 4's screens are reachable
+  (updated to the spec's Home / Chat / Create / Tasks / Library / More in
+  Phase 5); Splash and Onboarding now route here instead of straight to
+  `HomeScreen`
+- `ProjectsScreen` — project cards (name, description, last activity,
+  active-task count) opening `ProjectWorkspaceScreen`
+- `ProjectWorkspaceScreen` — tabbed layout (Overview / Chat / Research /
+  Files / Notes / Tasks / Memory / Published); Chat, Research, Tasks, and
+  Memory tabs embed their real screens, the rest are placeholders
+- `TaskCenterScreen` — Active / Scheduled / Awaiting Approval / Completed /
+  Failed tabs with progress rows, opening `TaskDetailScreen` (objective,
+  plan timeline, Pause/Stop)
+- `MemoryManagerScreen` — User / Project / Saved Knowledge / Preferences
+  sections with a search field (UI-only until the memory backend lands)
+- `CreateStudioScreen` — hero input + an 11-category grid, each routing
+  into Chat with a seeded prompt
+
+**Deferred from the roadmap's P4 list, since deepened**: a dedicated
+`Library`/file manager, `Image Studio`, and the agent-permissions UI for
+consequential actions — see the "Deepening pass" section below.
+
+### Phase 5 — Publishing, Analytics, Settings & Mobile (this commit)
+
+- `PublishingHubScreen` — Drafts / Approved / Scheduled / Published /
+  Failed tabs with content cards (the full workflow drawer and calendar
+  view are a follow-up)
+- `AnalyticsScreen` — Content Intelligence stat tiles; per the spec this
+  screen must only ever show real numbers, so every stat renders "—"
+  until a publishing platform is actually connected
+- `IntegrationsScreen` — AI Models / Google / Publishing / Storage
+  categories with connect/connected status pills (OAuth flows are UI-only
+  for now)
+- `SettingsScreen` — the full category list (General through Advanced);
+  "Connected Apps" opens `IntegrationsScreen`, the rest open a shared
+  placeholder detail screen
+- `MoreScreen` — the mobile "More" sheet holding Publishing, Analytics,
+  Integrations, Settings, and the dev widget catalog
+- `HomeShell`'s bottom nav now matches spec §46: Home / Chat / Create /
+  Tasks / Library / More (Library currently reuses `ProjectsScreen` until
+  a dedicated file manager exists)
+
+**Deferred from the roadmap's P5 list, partly deepened**: the publishing
+workflow drawer is now built (see below); the content calendar, real
+analytics charts, and the motion-system pass remain deferred — plus, as
+always, app store submission, which needs a real Apple/Google developer
+account.
+
+### Deepening pass — Library, Image Studio, agent permissions, publishing workflow
+
+- `LibraryScreen` — a real grid/list asset manager with a folder filter
+  row (All / Documents / Images / Research / Notes) and a view toggle;
+  `FilePreviewScreen` adds an "Ask Aura about this file" quick action.
+  `HomeShell`'s Library tab now uses this instead of reusing Projects
+  (Projects moved into `MoreScreen`, alongside Publishing/Analytics/etc.)
+- `ImageStudioScreen` — prompt input, style/aspect-ratio controls, a
+  generation canvas, and a variations history, backed by
+  `ImageStudioController`. It "generates" color-swatch placeholders after
+  a scripted delay — a real image model is a follow-up. Reachable from
+  Create Studio's "Image" category.
+- `AuraPermissionDialog` (new `aura_ui` primitive) — the agent-permissions
+  UI from spec §44: a visually distinct confirmation for consequential
+  actions. Wired into three real actions, not just as a demo: stopping a
+  running task (`TaskDetailScreen`), forgetting a memory
+  (`MemoryManagerScreen` — deletion is now real, in local state), and
+  publishing content (`PublishingHubScreen`, both the quick "Approved ->
+  Published" path and the full workflow below).
+- `PublishingWorkflowDrawer` — the full Content -> Destinations -> Adapt
+  -> Preview -> Approval -> Publish -> Verify flow (spec §37) as a
+  bottom-sheet stepper, with the Approval step itself gated behind
+  `AuraPermissionDialog`. Opened by tapping a Draft in `PublishingHubScreen`.
+
+**Why analytics charts are still just "—"**: the spec is explicit that
+this screen must only ever show real numbers, never invented ones. Adding
+a charting library now would mean charting fake data, which is the exact
+thing the spec rules out — so it stays deferred until there's a real
+publishing integration to chart.
+
+**Why the content calendar and motion-system pass are still deferred**:
+both are genuinely new scope (calendar date logic; a systematic animation
+pass across every screen) rather than wiring up something already built,
+and didn't fit in this increment.
+
+### Real backend: OpenAI chat + web search (SearXNG or Brave)
+
+Chat and Research are wired to real APIs, not just mocks — when a key/URL is
+configured:
+
+- **`OPENAI_API_KEY`** → `OpenAiGateway` streams real replies from OpenAI's
+  Chat Completions API (`gpt-4o-mini`) instead of the canned mock text.
+  `CompositeAiGateway` picks it automatically for the `openai` provider and
+  falls back to the mock for every other provider/when the key is absent.
+- **`SEARXNG_URL`** → `SearxngSearchClient` returns real web results from a
+  self-hosted [SearXNG](https://docs.searxng.org/) instance (free, no API
+  key — see `searxng-setup/` for a Docker Compose config and deploy it
+  somewhere public, e.g. Railway/Fly.io) instead of the 3 hardcoded mock
+  sources. Preferred over Brave when both are set.
+- **`BRAVE_API_KEY`** → `BraveSearchClient` returns real web results from
+  the Brave Search API when `SEARXNG_URL` isn't set.
+- With `OPENAI_API_KEY` and either search backend set, the research report
+  is a real OpenAI call grounded in those results' snippets (cited inline
+  as `[1]`, `[2]`, ...), not the scripted mock paragraph.
+
+None of these are committed anywhere — they're read at **build time** via
+`--dart-define`, so the app works with mocks with no configuration and
+switches to real calls the moment a key/URL is supplied:
+
+```bash
+cd apps/mobile
+flutter run \
+  --dart-define=OPENAI_API_KEY=sk-... \
+  --dart-define=SEARXNG_URL=https://your-searxng.up.railway.app
+```
+
+**In CI**, add `OPENAI_API_KEY`, `SEARXNG_URL` (and/or `BRAVE_API_KEY`) as
+repository secrets
+(Settings → Secrets and variables → Actions → New repository secret) — the
+`build-android`/`build-web`/`build-ios` jobs already pass them through as
+`--dart-define` and no workflow changes are needed once they're set.
+
+**Two things worth knowing before you rely on this:**
+- A key passed via `--dart-define` still ends up embedded in the compiled
+  app binary and can be extracted by anyone with the APK/IPA — this keeps
+  it out of *git*, not out of the *shipped app*. A production build should
+  proxy provider calls through a backend that holds the real key
+  server-side (the FastAPI backend the roadmap describes) instead of
+  calling OpenAI/Brave directly from the client.
+- Calling the OpenAI API directly from a **browser** (the web build) may
+  hit CORS restrictions that don't apply on Android/iOS, since OpenAI's
+  API isn't designed to be called from arbitrary browser origins. If Chat
+  doesn't get real replies on web but does on mobile, that's why.
+
+### Running it
+
+Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
+(not installed in this environment — these files haven't been built or run
+here yet, only authored to match the expected project layout).
+
+```bash
+cd apps/mobile
+flutter pub get
+flutter run              # or: flutter test / flutter analyze
+```
+
+### Known limitations — cannot be completed in this environment
+
+A few roadmap items hit a hard wall here, not a scoping choice, and are
+worth naming plainly rather than silently skipping:
+
+- **Offline LLM inference (llama.cpp/Ollama) and on-device STT
+  (Whisper.cpp)**: these need native binaries compiled per platform and
+  bundled into the app; there's no Flutter SDK or native toolchain in this
+  container to build or even smoke-test that integration.
+- **Real Anthropic/Gemini calls, Deepgram, Supabase, and every OAuth
+  integration**: OpenAI chat and Brave Search are wired to the real APIs
+  (see above) since keys for those were available; everything else still
+  needs real credentials this environment doesn't have. Each follows the
+  same pattern `OpenAiGateway`/`BraveSearchClient` set — one class per
+  provider, not a redesign.
+- **App Store / Play Store submission**: needs a real Apple/Google
+  developer account, signing certificates, and store listing assets —
+  none of which exist here.
+- **Actually running the app**: there's no Flutter SDK installed in this
+  container, so nothing here has been run, only authored to match the
+  expected project layout and verified through CI (which does have
+  Flutter). See "Running it" above for the commands to try it yourself.
+
+### What's next
+
+All six roadmap phases (P0-P5) have a scaffolded pass, and Phase 4/5's
+Library, Image Studio, agent-permissions, and publishing-workflow gaps
+have been deepened. What remains is the content calendar, real analytics
+charts, the motion-system pass, and the real backend integrations listed
+above — see the project roadmap artifact for the full breakdown.

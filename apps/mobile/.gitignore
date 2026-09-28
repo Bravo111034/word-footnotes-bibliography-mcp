@@ -1,0 +1,7 @@
+# Platform projects are generated on demand (see .github/workflows/flutter-ci.yml)
+# via `flutter create --platforms=...` until a later phase commits them for
+# real device builds and store submission.
+/android/
+/ios/
+/build/
+.dart_tool/
