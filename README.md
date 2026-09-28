@@ -295,33 +295,39 @@ both are genuinely new scope (calendar date logic; a systematic animation
 pass across every screen) rather than wiring up something already built,
 and didn't fit in this increment.
 
-### Real backend: OpenAI chat + Brave Search
+### Real backend: OpenAI chat + web search (SearXNG or Brave)
 
-Chat and Research are wired to real APIs, not just mocks — when a key is
+Chat and Research are wired to real APIs, not just mocks — when a key/URL is
 configured:
 
 - **`OPENAI_API_KEY`** → `OpenAiGateway` streams real replies from OpenAI's
   Chat Completions API (`gpt-4o-mini`) instead of the canned mock text.
   `CompositeAiGateway` picks it automatically for the `openai` provider and
   falls back to the mock for every other provider/when the key is absent.
+- **`SEARXNG_URL`** → `SearxngSearchClient` returns real web results from a
+  self-hosted [SearXNG](https://docs.searxng.org/) instance (free, no API
+  key — see `searxng-setup/` for a Docker Compose config and deploy it
+  somewhere public, e.g. Railway/Fly.io) instead of the 3 hardcoded mock
+  sources. Preferred over Brave when both are set.
 - **`BRAVE_API_KEY`** → `BraveSearchClient` returns real web results from
-  the Brave Search API instead of the 3 hardcoded mock sources. With both
-  keys set, the research report is a real OpenAI call grounded in those
-  results' snippets (cited inline as `[1]`, `[2]`, ...), not the scripted
-  mock paragraph.
+  the Brave Search API when `SEARXNG_URL` isn't set.
+- With `OPENAI_API_KEY` and either search backend set, the research report
+  is a real OpenAI call grounded in those results' snippets (cited inline
+  as `[1]`, `[2]`, ...), not the scripted mock paragraph.
 
-Neither key is committed anywhere — they're read at **build time** via
+None of these are committed anywhere — they're read at **build time** via
 `--dart-define`, so the app works with mocks with no configuration and
-switches to real calls the moment a key is supplied:
+switches to real calls the moment a key/URL is supplied:
 
 ```bash
 cd apps/mobile
 flutter run \
   --dart-define=OPENAI_API_KEY=sk-... \
-  --dart-define=BRAVE_API_KEY=...
+  --dart-define=SEARXNG_URL=https://your-searxng.up.railway.app
 ```
 
-**In CI**, add `OPENAI_API_KEY` and `BRAVE_API_KEY` as repository secrets
+**In CI**, add `OPENAI_API_KEY`, `SEARXNG_URL` (and/or `BRAVE_API_KEY`) as
+repository secrets
 (Settings → Secrets and variables → Actions → New repository secret) — the
 `build-android`/`build-web`/`build-ios` jobs already pass them through as
 `--dart-define` and no workflow changes are needed once they're set.

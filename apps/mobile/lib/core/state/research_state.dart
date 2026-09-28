@@ -4,6 +4,7 @@ import 'package:aura_ai_gateway/aura_ai_gateway.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/brave_search_client.dart';
+import '../services/searxng_search_client.dart';
 
 class ResearchStep {
   const ResearchStep({required this.label, this.done = false});
@@ -69,21 +70,27 @@ const _mockSources = [
 
 /// Drives the Active Research screen: a plan, sources, and a report.
 ///
-/// When `BRAVE_API_KEY` is configured, sources come from a real Brave
-/// Search call. When `OPENAI_API_KEY` is also configured, the report is
-/// written by a real OpenAI call grounded in those sources' snippets.
-/// Without either key, both fall back to a scripted mock so the screen
-/// still works end-to-end. This is a placeholder for the real FastAPI +
-/// LangGraph agent (multi-step planning, document reading, cross-checking)
-/// described in the roadmap — a single search + single write call, not an
-/// agent loop.
+/// Sources come from a real web search when `SEARXNG_URL` (a self-hosted,
+/// free, no-API-key SearXNG instance) or `BRAVE_API_KEY` is configured —
+/// SearXNG is preferred when both are set. When `OPENAI_API_KEY` is also
+/// configured, the report is written by a real OpenAI call grounded in
+/// those sources' snippets. Without any of these, everything falls back to
+/// a scripted mock so the screen still works end-to-end. This is a
+/// placeholder for the real FastAPI + LangGraph agent (multi-step
+/// planning, document reading, cross-checking) described in the roadmap —
+/// a single search + single write call, not an agent loop.
 class ResearchController extends StateNotifier<ResearchState> {
-  ResearchController({BraveSearchClient? searchClient, AiGateway? aiGateway})
-      : _searchClient = searchClient ?? BraveSearchClient(),
+  ResearchController({
+    SearxngSearchClient? searxngClient,
+    BraveSearchClient? braveClient,
+    AiGateway? aiGateway,
+  })  : _searxngClient = searxngClient ?? SearxngSearchClient(),
+        _braveClient = braveClient ?? BraveSearchClient(),
         _aiGateway = aiGateway ?? CompositeAiGateway(),
         super(const ResearchState());
 
-  final BraveSearchClient _searchClient;
+  final SearxngSearchClient _searxngClient;
+  final BraveSearchClient _braveClient;
   final AiGateway _aiGateway;
 
   Future<void> startResearch(String query) async {
@@ -114,13 +121,15 @@ class ResearchController extends StateNotifier<ResearchState> {
   }
 
   Future<List<WebSearchResult>> _findSources(String query) async {
-    if (!AiConfig.hasBraveSearchKey) {
+    if (!AiConfig.hasSearxng && !AiConfig.hasBraveSearchKey) {
       state = state.copyWith(sources: _mockSources);
       return const [];
     }
 
     try {
-      final results = await _searchClient.search(query);
+      final results = AiConfig.hasSearxng
+          ? await _searxngClient.search(query)
+          : await _braveClient.search(query);
       state = state.copyWith(
         sources: results
             .map((r) => SourceItem(

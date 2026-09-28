@@ -1,0 +1,22 @@
+# Starts from SearXNG's defaults and only overrides what's needed.
+use_default_settings: true
+
+general:
+  instance_name: "My SearXNG"
+
+server:
+  # Generate your own with `openssl rand -hex 32` before deploying —
+  # never reuse this placeholder or commit a real key.
+  secret_key: "CHANGE_ME_GENERATE_YOUR_OWN_RANDOM_KEY"
+  limiter: false        # fine for personal/local use — consider enabling for a public deploy
+  image_proxy: true
+
+search:
+  safe_search: 0
+  autocomplete: "duckduckgo"
+  formats:
+    - html
+    - json              # enables the JSON API: /search?q=...&format=json
+
+ui:
+  default_theme: simple

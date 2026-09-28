@@ -15,6 +15,12 @@ class AiConfig {
   static const openAiApiKey = String.fromEnvironment('OPENAI_API_KEY');
   static const braveSearchApiKey = String.fromEnvironment('BRAVE_API_KEY');
 
+  /// Base URL of a self-hosted SearXNG instance (e.g. a public Railway/Fly
+  /// deployment), used as a free, no-API-key web search backend. Preferred
+  /// over Brave Search when set.
+  static const searxngUrl = String.fromEnvironment('SEARXNG_URL');
+
   static bool get hasOpenAiKey => openAiApiKey.isNotEmpty;
   static bool get hasBraveSearchKey => braveSearchApiKey.isNotEmpty;
+  static bool get hasSearxng => searxngUrl.isNotEmpty;
 }
