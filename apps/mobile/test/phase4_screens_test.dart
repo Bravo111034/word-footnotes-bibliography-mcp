@@ -23,7 +23,7 @@ void main() {
 
     await tester.tap(find.text('Library'));
     await tester.pump();
-    expect(find.text('EV Battery Market'), findsOneWidget);
+    expect(find.text('EV battery report.pdf'), findsOneWidget);
   });
 
   testWidgets('ProjectsScreen opens a ProjectWorkspaceScreen', (tester) async {

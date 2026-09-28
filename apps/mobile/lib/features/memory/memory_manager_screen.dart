@@ -8,7 +8,7 @@ class _MemoryItem {
   final String subtitle;
 }
 
-const _sections = <String, List<_MemoryItem>>{
+const _initialSections = <String, List<_MemoryItem>>{
   'User': [
     _MemoryItem(title: 'Prefers concise, direct answers', subtitle: 'Learned from 14 conversations'),
   ],
@@ -24,10 +24,19 @@ const _sections = <String, List<_MemoryItem>>{
 };
 
 /// Memory Manager: User / Project / Saved Knowledge / Preferences sections
-/// with semantic search (spec §33-34). Search and edit/remove are UI-only
-/// until the memory backend lands.
-class MemoryManagerScreen extends StatelessWidget {
+/// with semantic search (spec §33-34). Search and edit are UI-only until
+/// the memory backend lands; delete is real (in local state) and gated
+/// behind a permission confirmation (spec §44), since forgetting something
+/// is a consequential, hard-to-undo action.
+class MemoryManagerScreen extends StatefulWidget {
   const MemoryManagerScreen({super.key});
+
+  @override
+  State<MemoryManagerScreen> createState() => _MemoryManagerScreenState();
+}
+
+class _MemoryManagerScreenState extends State<MemoryManagerScreen> {
+  final _sections = {for (final e in _initialSections.entries) e.key: List<_MemoryItem>.from(e.value)};
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +73,10 @@ class MemoryManagerScreen extends StatelessWidget {
                         ),
                       ),
                       IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}),
-                      IconButton(icon: const Icon(Icons.delete_outline, size: 18), onPressed: () {}),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                        onPressed: () => _confirmDelete(entry.key, item),
+                      ),
                     ],
                   ),
                 ),
@@ -75,5 +87,18 @@ class MemoryManagerScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDelete(String section, _MemoryItem item) async {
+    final confirmed = await AuraPermissionDialog.confirm(
+      context,
+      title: 'Forget this?',
+      description: 'Aura will stop remembering: "${item.title}". This cannot be undone.',
+      confirmLabel: 'Forget',
+      destructive: true,
+    );
+    if (confirmed) {
+      setState(() => _sections[section]!.remove(item));
+    }
   }
 }

@@ -12,3 +12,4 @@ export 'src/widgets/aura_gradient_text.dart';
 export 'src/widgets/aura_command_bar.dart';
 export 'src/widgets/aura_top_bar.dart';
 export 'src/widgets/aura_sidebar.dart';
+export 'src/widgets/aura_permission_dialog.dart';

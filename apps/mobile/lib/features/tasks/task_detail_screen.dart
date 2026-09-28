@@ -59,7 +59,11 @@ class TaskDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: AuraSpace.sm),
                 Expanded(
-                  child: OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.stop), label: const Text('Stop')),
+                  child: OutlinedButton.icon(
+                    onPressed: () => _confirmStop(context),
+                    icon: const Icon(Icons.stop),
+                    label: const Text('Stop'),
+                  ),
                 ),
               ],
             ),
@@ -67,5 +71,18 @@ class TaskDetailScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmStop(BuildContext context) async {
+    final confirmed = await AuraPermissionDialog.confirm(
+      context,
+      title: 'Stop this task?',
+      description: 'Aura will stop working on "$title". Progress so far is kept, but the remaining steps will not run.',
+      confirmLabel: 'Stop task',
+      destructive: true,
+    );
+    if (confirmed && context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 }

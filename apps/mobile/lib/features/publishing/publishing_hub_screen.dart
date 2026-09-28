@@ -1,6 +1,8 @@
 import 'package:aura_ui/aura_ui.dart';
 import 'package:flutter/material.dart';
 
+import 'publishing_workflow_drawer.dart';
+
 class _Content {
   const _Content({required this.title, required this.platform});
 
@@ -10,7 +12,7 @@ class _Content {
 
 const _tabs = ['Drafts', 'Approved', 'Scheduled', 'Published', 'Failed'];
 
-const _contentByTab = <String, List<_Content>>{
+const _initialContentByTab = <String, List<_Content>>{
   'Drafts': [_Content(title: 'Q3 recap carousel', platform: 'LinkedIn')],
   'Approved': [_Content(title: 'Battery report summary', platform: 'X')],
   'Scheduled': [_Content(title: 'Monday newsletter', platform: 'Email')],
@@ -19,11 +21,20 @@ const _contentByTab = <String, List<_Content>>{
 };
 
 /// Publishing Hub: Drafts / Approved / Scheduled / Published / Failed tabs
-/// with content cards (spec §35-38). The full workflow drawer (Content ->
-/// Destinations -> Adapt -> Preview -> Approval -> Publish -> Verify) and
-/// the calendar view are a follow-up.
-class PublishingHubScreen extends StatelessWidget {
+/// with content cards (spec §35-38). Tapping a Draft opens the full
+/// [PublishingWorkflowDrawer]; tapping an Approved item publishes it
+/// directly. Both end in a real, consequential, public action, so both are
+/// gated behind a permission confirmation (spec §44). The calendar view is
+/// a follow-up.
+class PublishingHubScreen extends StatefulWidget {
   const PublishingHubScreen({super.key});
+
+  @override
+  State<PublishingHubScreen> createState() => _PublishingHubScreenState();
+}
+
+class _PublishingHubScreenState extends State<PublishingHubScreen> {
+  final _contentByTab = {for (final e in _initialContentByTab.entries) e.key: List<_Content>.from(e.value)};
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +64,11 @@ class PublishingHubScreen extends StatelessWidget {
               itemBuilder: (context, i) {
                 final item = items[i];
                 return AuraCard(
+                  onTap: tab == 'Approved'
+                      ? () => _confirmPublish(item)
+                      : tab == 'Drafts'
+                          ? () => _runWorkflow(item)
+                          : null,
                   child: Row(
                     children: [
                       Expanded(
@@ -75,5 +91,30 @@ class PublishingHubScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmPublish(_Content item) async {
+    final confirmed = await AuraPermissionDialog.confirm(
+      context,
+      title: 'Publish publicly?',
+      description: '"${item.title}" will go live on ${item.platform} for anyone to see.',
+      confirmLabel: 'Publish',
+    );
+    if (confirmed) {
+      setState(() {
+        _contentByTab['Approved']!.remove(item);
+        _contentByTab['Published']!.insert(0, item);
+      });
+    }
+  }
+
+  Future<void> _runWorkflow(_Content item) async {
+    final completed = await PublishingWorkflowDrawer.show(context);
+    if (completed && mounted) {
+      setState(() {
+        _contentByTab['Drafts']!.remove(item);
+        _contentByTab['Published']!.insert(0, item);
+      });
+    }
   }
 }

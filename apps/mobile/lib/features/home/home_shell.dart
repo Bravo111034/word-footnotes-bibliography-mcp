@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../chat/chat_screen.dart';
 import '../create/create_studio_screen.dart';
+import '../library/library_screen.dart';
 import '../more/more_screen.dart';
-import '../projects/projects_screen.dart';
 import '../tasks/task_center_screen.dart';
 import 'home_screen.dart';
 
-/// Mobile bottom nav (spec §46): Home / Chat / Create / Tasks / Library
-/// (Projects, until a dedicated file-manager Library screen lands) / More.
+/// Mobile bottom nav (spec §46): Home / Chat / Create / Tasks / Library /
+/// More. Projects lives in More (it's a workspace concept that spans
+/// chat/research/tasks, not a primary destination in the spec's own nav).
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -24,7 +25,7 @@ class _HomeShellState extends State<HomeShell> {
     ChatScreen(),
     CreateStudioScreen(),
     TaskCenterScreen(),
-    ProjectsScreen(),
+    LibraryScreen(),
     MoreScreen(),
   ];
 

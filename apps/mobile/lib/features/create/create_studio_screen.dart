@@ -2,6 +2,7 @@ import 'package:aura_ui/aura_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../chat/chat_screen.dart';
+import '../image_studio/image_studio_screen.dart';
 
 class _Category {
   const _Category(this.label, this.icon);
@@ -24,9 +25,9 @@ const _categories = [
   _Category('Web Article', Icons.article_outlined),
 ];
 
-/// Create Studio: a hero input plus a category grid (spec §23). Every
-/// category currently routes into Chat with a seeded prompt — dedicated
-/// studios (Image Studio, etc.) are a follow-up.
+/// Create Studio: a hero input plus a category grid (spec §23). "Image"
+/// opens the dedicated Image Studio; every other category routes into
+/// Chat with a seeded prompt until its own studio exists.
 class CreateStudioScreen extends StatelessWidget {
   const CreateStudioScreen({super.key});
 
@@ -54,7 +55,9 @@ class CreateStudioScreen extends StatelessWidget {
                 childAspectRatio: 2.4,
                 children: _categories.map((c) {
                   return AuraCard(
-                    onTap: () => _open(context, 'Create a ${c.label.toLowerCase()}'),
+                    onTap: () => c.label == 'Image'
+                        ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ImageStudioScreen()))
+                        : _open(context, 'Create a ${c.label.toLowerCase()}'),
                     child: Row(
                       children: [
                         Icon(c.icon, color: AuraColors.violet, size: 20),

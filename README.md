@@ -230,9 +230,9 @@ apps/desktop/            Flutter app — macOS / Windows / Linux
 - `CreateStudioScreen` — hero input + an 11-category grid, each routing
   into Chat with a seeded prompt
 
-**Deferred from the roadmap's P4 list** (kept out to stay incremental):
-a dedicated `Library`/file manager, `Image Studio`, and the
-agent-permissions UI for consequential actions.
+**Deferred from the roadmap's P4 list, since deepened**: a dedicated
+`Library`/file manager, `Image Studio`, and the agent-permissions UI for
+consequential actions — see the "Deepening pass" section below.
 
 ### Phase 5 — Publishing, Analytics, Settings & Mobile (this commit)
 
@@ -254,11 +254,46 @@ agent-permissions UI for consequential actions.
   Tasks / Library / More (Library currently reuses `ProjectsScreen` until
   a dedicated file manager exists)
 
-**Deferred from the roadmap's P5 list**: the publishing workflow drawer,
-the content calendar, real analytics charts, and the motion-system pass
-(these need either a backend, a charting library, or a level of animation
-polish out of scope for this increment) — plus, as always, app store
-submission, which needs a real Apple/Google developer account.
+**Deferred from the roadmap's P5 list, partly deepened**: the publishing
+workflow drawer is now built (see below); the content calendar, real
+analytics charts, and the motion-system pass remain deferred — plus, as
+always, app store submission, which needs a real Apple/Google developer
+account.
+
+### Deepening pass — Library, Image Studio, agent permissions, publishing workflow
+
+- `LibraryScreen` — a real grid/list asset manager with a folder filter
+  row (All / Documents / Images / Research / Notes) and a view toggle;
+  `FilePreviewScreen` adds an "Ask Aura about this file" quick action.
+  `HomeShell`'s Library tab now uses this instead of reusing Projects
+  (Projects moved into `MoreScreen`, alongside Publishing/Analytics/etc.)
+- `ImageStudioScreen` — prompt input, style/aspect-ratio controls, a
+  generation canvas, and a variations history, backed by
+  `ImageStudioController`. It "generates" color-swatch placeholders after
+  a scripted delay — a real image model is a follow-up. Reachable from
+  Create Studio's "Image" category.
+- `AuraPermissionDialog` (new `aura_ui` primitive) — the agent-permissions
+  UI from spec §44: a visually distinct confirmation for consequential
+  actions. Wired into three real actions, not just as a demo: stopping a
+  running task (`TaskDetailScreen`), forgetting a memory
+  (`MemoryManagerScreen` — deletion is now real, in local state), and
+  publishing content (`PublishingHubScreen`, both the quick "Approved ->
+  Published" path and the full workflow below).
+- `PublishingWorkflowDrawer` — the full Content -> Destinations -> Adapt
+  -> Preview -> Approval -> Publish -> Verify flow (spec §37) as a
+  bottom-sheet stepper, with the Approval step itself gated behind
+  `AuraPermissionDialog`. Opened by tapping a Draft in `PublishingHubScreen`.
+
+**Why analytics charts are still just "—"**: the spec is explicit that
+this screen must only ever show real numbers, never invented ones. Adding
+a charting library now would mean charting fake data, which is the exact
+thing the spec rules out — so it stays deferred until there's a real
+publishing integration to chart.
+
+**Why the content calendar and motion-system pass are still deferred**:
+both are genuinely new scope (calendar date logic; a systematic animation
+pass across every screen) rather than wiring up something already built,
+and didn't fit in this increment.
 
 ### Running it
 
@@ -272,12 +307,32 @@ flutter pub get
 flutter run              # or: flutter test / flutter analyze
 ```
 
+### Known limitations — cannot be completed in this environment
+
+A few roadmap items hit a hard wall here, not a scoping choice, and are
+worth naming plainly rather than silently skipping:
+
+- **Offline LLM inference (llama.cpp/Ollama) and on-device STT
+  (Whisper.cpp)**: these need native binaries compiled per platform and
+  bundled into the app; there's no Flutter SDK or native toolchain in this
+  container to build or even smoke-test that integration.
+- **Real AI provider calls (Anthropic/OpenAI/Gemini), Deepgram, Supabase,
+  and every OAuth integration**: all need real API keys/credentials this
+  environment doesn't have. The gateway/pipeline interfaces are built and
+  tested against mocks so swapping in real credentials is a matter of
+  implementing one class per provider, not a redesign.
+- **App Store / Play Store submission**: needs a real Apple/Google
+  developer account, signing certificates, and store listing assets —
+  none of which exist here.
+- **Actually running the app**: there's no Flutter SDK installed in this
+  container, so nothing here has been run, only authored to match the
+  expected project layout and verified through CI (which does have
+  Flutter). See "Running it" above for the commands to try it yourself.
+
 ### What's next
 
-All six roadmap phases (P0-P5) now have a scaffolded pass. What's left is
-depth, not breadth: the items called out as deferred above (Library,
-Image Studio, agent permissions, the publishing workflow drawer, real
-analytics, motion polish), plus the real backend integrations every mock
-package documents (Supabase auth, provider SDKs, Whisper/Deepgram,
-FastAPI + LangGraph agent, RAG memory) — see the project roadmap artifact
-for the full breakdown.
+All six roadmap phases (P0-P5) have a scaffolded pass, and Phase 4/5's
+Library, Image Studio, agent-permissions, and publishing-workflow gaps
+have been deepened. What remains is the content calendar, real analytics
+charts, the motion-system pass, and the real backend integrations listed
+above — see the project roadmap artifact for the full breakdown.

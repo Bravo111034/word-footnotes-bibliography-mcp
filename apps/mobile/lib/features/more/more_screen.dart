@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../analytics/analytics_screen.dart';
 import '../catalog/widget_catalog_screen.dart';
 import '../integrations/integrations_screen.dart';
+import '../projects/projects_screen.dart';
 import '../publishing/publishing_hub_screen.dart';
 import '../settings/settings_screen.dart';
 
@@ -16,6 +17,7 @@ class _MoreEntry {
 }
 
 final _entries = [
+  _MoreEntry('Projects', Icons.folder_special_outlined, (_) => const ProjectsScreen()),
   _MoreEntry('Publishing', Icons.send_outlined, (_) => const PublishingHubScreen()),
   _MoreEntry('Analytics', Icons.insights_outlined, (_) => const AnalyticsScreen()),
   _MoreEntry('Integrations', Icons.extension_outlined, (_) => const IntegrationsScreen()),
