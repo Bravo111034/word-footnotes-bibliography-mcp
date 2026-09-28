@@ -15,7 +15,7 @@ class SearxngSearchClient {
   final http.Client _client;
 
   Future<List<WebSearchResult>> search(String query, {int count = 5}) async {
-    final base = AiConfig.searxngUrl;
+    const base = AiConfig.searxngUrl;
     final uri = Uri.parse('$base/search').replace(queryParameters: {
       'q': query,
       'format': 'json',
