@@ -1,5 +1,12 @@
 # word-footnotes-bibliography-mcp
 
+> **Aura AI build-out in progress.** This repository is being grown into
+> **Aura AI**, a voice-controlled AI research agent shipping as a Flutter
+> app (mobile + desktop). The Flutter workspace lives under `packages/`
+> and `apps/`; see [Aura AI (Flutter)](#aura-ai-flutter) below for its
+> phased roadmap and current status. The original Python MCP server
+> described below is unaffected and continues to work standalone.
+
 A self-contained [Model Context Protocol](https://modelcontextprotocol.io)
 server that adds **footnotes**, **in-text citations**, and a **bibliography /
 references / works-cited** section to Microsoft Word `.docx` files — without
@@ -125,3 +132,47 @@ pytest
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+## Aura AI (Flutter)
+
+Aura AI is a voice-controlled AI research agent — chat, deep research,
+memory, task orchestration, and publishing — shipping as a Flutter app
+across mobile and desktop. It's being built in phases; **Phase 0
+(Foundation)** is scaffolded here.
+
+```
+packages/aura_ui/        shared design system (tokens, theme, primitives)
+apps/mobile/             Flutter app — iOS / Android
+apps/desktop/            Flutter app — macOS / Windows / Linux
+.github/workflows/       flutter-ci.yml — lint → test → build
+```
+
+### Phase 0 — Foundation (this commit)
+
+- `AuraColors` / `AuraSpace` / `AuraRadius` / `AuraMotion` design tokens
+  (`packages/aura_ui/lib/src/theme/aura_tokens.dart`)
+- `AuraTheme.light` / `AuraTheme.dark`, full color-scheme coverage
+- `AuraIntelligenceIndicator` — the 7-state animated signature widget
+  (idle → thinking → searching → creating → executing → complete → error)
+- Primitives: `AuraStatusBadge`, `AuraCard`, `AuraBorder`, `AuraGradientText`
+- A widget catalog screen (`apps/mobile/lib/features/catalog`) for live UI QA
+- CI: lint, test, and build (Android + iOS simulator) on every push
+
+### Running it
+
+Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
+(not installed in this environment — these files haven't been built or run
+here yet, only authored to match the expected project layout).
+
+```bash
+cd apps/mobile
+flutter pub get
+flutter run              # or: flutter test / flutter analyze
+```
+
+### What's next
+
+Phase 1 (auth, home command center, command palette, global nav) per the
+roadmap — see the project roadmap artifact for the full phase breakdown.

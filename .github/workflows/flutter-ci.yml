@@ -1,0 +1,68 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'apps/**'
+      - '.github/workflows/flutter-ci.yml'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - 'apps/**'
+      - '.github/workflows/flutter-ci.yml'
+
+jobs:
+  lint-and-test:
+    name: Lint & test (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [packages/aura_ui, apps/mobile, apps/desktop]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install dependencies
+        working-directory: ${{ matrix.package }}
+        run: flutter pub get
+      - name: Analyze
+        working-directory: ${{ matrix.package }}
+        run: flutter analyze
+      - name: Test
+        working-directory: ${{ matrix.package }}
+        run: flutter test
+
+  build-android:
+    name: Build Android (apps/mobile)
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+      - name: Build APK (debug)
+        working-directory: apps/mobile
+        run: flutter build apk --debug
+
+  build-ios:
+    name: Build iOS simulator (apps/mobile)
+    runs-on: macos-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+      - name: Build iOS (no codesign, simulator)
+        working-directory: apps/mobile
+        run: flutter build ios --simulator --no-codesign
