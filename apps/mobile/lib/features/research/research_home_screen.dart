@@ -37,7 +37,7 @@ class _ResearchHomeScreenState extends ConsumerState<ResearchHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Research')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(AuraSpace.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

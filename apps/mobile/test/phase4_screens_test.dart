@@ -60,6 +60,14 @@ void main() {
     await tester.pump();
 
     expect(find.text('Image'), findsOneWidget);
+
+    // The grid is lazily built, so a category near the end ("Diagram")
+    // isn't in the tree until it's scrolled into view.
+    await tester.dragUntilVisible(
+      find.text('Diagram'),
+      find.byType(GridView),
+      const Offset(0, -200),
+    );
     expect(find.text('Diagram'), findsOneWidget);
   });
 }
