@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   aura_ui:
     path: ../../packages/aura_ui
+  flutter_riverpod: ^2.5.1
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

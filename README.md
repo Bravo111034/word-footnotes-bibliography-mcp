@@ -160,6 +160,23 @@ apps/desktop/            Flutter app — macOS / Windows / Linux
 - A widget catalog screen (`apps/mobile/lib/features/catalog`) for live UI QA
 - CI: lint, test, and build (Android + iOS simulator) on every push
 
+### Phase 1 — Auth, Home & Command Palette (this commit)
+
+- `AuthController` (Riverpod `StateNotifier`) — persists a signed-in flag
+  and onboarding completion via `shared_preferences`; scaffolded ahead of
+  real Supabase email/Google auth
+- Mobile flow: `SplashScreen` → `SignInScreen` → `OnboardingScreen` (4
+  swipeable steps) → `HomeScreen`
+- `HomeScreen` — greeting, `AuraCommandBar`, quick-action chips, Continue
+  Working / Active Tasks rows, Recent Work grid
+- `CommandPaletteOverlay` — full-screen ⌘K-style palette with recent
+  commands and suggested actions
+- `NotificationCenterScreen` — category-tabbed notifications (mocked data)
+- Shared layout primitives added to `aura_ui`: `AuraCommandBar`,
+  `AuraTopBar`, `AuraSidebar`
+- Desktop: 3-region shell (`DesktopShell`) — sidebar + workspace + a
+  collapsible context panel
+
 ### Running it
 
 Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
@@ -174,5 +191,5 @@ flutter run              # or: flutter test / flutter analyze
 
 ### What's next
 
-Phase 1 (auth, home command center, command palette, global nav) per the
-roadmap — see the project roadmap artifact for the full phase breakdown.
+Phase 2 (AI chat + multi-model engine) per the roadmap — see the project
+roadmap artifact for the full phase breakdown.

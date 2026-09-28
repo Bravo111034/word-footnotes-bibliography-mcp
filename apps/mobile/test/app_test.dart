@@ -1,13 +1,17 @@
 import 'package:aura_mobile/main.dart';
-import 'package:aura_ui/aura_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('AuraApp boots into the widget catalog', (tester) async {
-    await tester.pumpWidget(const AuraApp());
-    await tester.pump();
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
-    expect(find.text('Aura Widget Catalog'), findsOneWidget);
-    expect(find.byType(AuraIntelligenceIndicator), findsWidgets);
+  testWidgets('AuraApp boots into Sign In when no session is persisted', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: AuraApp()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome to Aura'), findsOneWidget);
   });
 }

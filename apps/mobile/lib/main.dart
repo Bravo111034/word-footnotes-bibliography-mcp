@@ -1,15 +1,15 @@
 import 'package:aura_ui/aura_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'features/catalog/widget_catalog_screen.dart';
+import 'features/splash/splash_screen.dart';
 
 void main() {
-  runApp(const AuraApp());
+  runApp(const ProviderScope(child: AuraApp()));
 }
 
-/// Root of the Aura mobile app. For P0 this boots straight into the widget
-/// catalog so every new token/primitive can be QA'd as it lands; later
-/// phases replace [home] with the real navigation shell.
+/// Root of the Aura mobile app. Boots into [SplashScreen], which routes to
+/// Sign In, Onboarding, or Home once the persisted session has loaded.
 class AuraApp extends StatelessWidget {
   const AuraApp({super.key});
 
@@ -21,7 +21,7 @@ class AuraApp extends StatelessWidget {
       theme: AuraTheme.light,
       darkTheme: AuraTheme.dark,
       themeMode: ThemeMode.system,
-      home: const WidgetCatalogScreen(),
+      home: const SplashScreen(),
     );
   }
 }

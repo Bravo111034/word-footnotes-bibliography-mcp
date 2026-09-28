@@ -9,3 +9,6 @@ export 'src/widgets/aura_status_badge.dart';
 export 'src/widgets/aura_card.dart';
 export 'src/widgets/aura_border.dart';
 export 'src/widgets/aura_gradient_text.dart';
+export 'src/widgets/aura_command_bar.dart';
+export 'src/widgets/aura_top_bar.dart';
+export 'src/widgets/aura_sidebar.dart';
