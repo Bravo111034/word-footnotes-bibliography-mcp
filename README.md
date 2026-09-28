@@ -213,9 +213,10 @@ apps/desktop/            Flutter app — macOS / Windows / Linux
 
 ### Phase 4 — Projects, Tasks, Memory & Create Studio (this commit)
 
-- `HomeShell` — bottom-nav shell (Home / Create / Tasks / Projects) so
-  Phase 4's screens are reachable; Splash and Onboarding now route here
-  instead of straight to `HomeScreen`
+- `HomeShell` — bottom-nav shell so Phase 4's screens are reachable
+  (updated to the spec's Home / Chat / Create / Tasks / Library / More in
+  Phase 5); Splash and Onboarding now route here instead of straight to
+  `HomeScreen`
 - `ProjectsScreen` — project cards (name, description, last activity,
   active-task count) opening `ProjectWorkspaceScreen`
 - `ProjectWorkspaceScreen` — tabbed layout (Overview / Chat / Research /
@@ -230,8 +231,34 @@ apps/desktop/            Flutter app — macOS / Windows / Linux
   into Chat with a seeded prompt
 
 **Deferred from the roadmap's P4 list** (kept out to stay incremental):
-`Library`/file manager, `Image Studio`, and the agent-permissions UI for
-consequential actions — these land in a follow-up pass.
+a dedicated `Library`/file manager, `Image Studio`, and the
+agent-permissions UI for consequential actions.
+
+### Phase 5 — Publishing, Analytics, Settings & Mobile (this commit)
+
+- `PublishingHubScreen` — Drafts / Approved / Scheduled / Published /
+  Failed tabs with content cards (the full workflow drawer and calendar
+  view are a follow-up)
+- `AnalyticsScreen` — Content Intelligence stat tiles; per the spec this
+  screen must only ever show real numbers, so every stat renders "—"
+  until a publishing platform is actually connected
+- `IntegrationsScreen` — AI Models / Google / Publishing / Storage
+  categories with connect/connected status pills (OAuth flows are UI-only
+  for now)
+- `SettingsScreen` — the full category list (General through Advanced);
+  "Connected Apps" opens `IntegrationsScreen`, the rest open a shared
+  placeholder detail screen
+- `MoreScreen` — the mobile "More" sheet holding Publishing, Analytics,
+  Integrations, Settings, and the dev widget catalog
+- `HomeShell`'s bottom nav now matches spec §46: Home / Chat / Create /
+  Tasks / Library / More (Library currently reuses `ProjectsScreen` until
+  a dedicated file manager exists)
+
+**Deferred from the roadmap's P5 list**: the publishing workflow drawer,
+the content calendar, real analytics charts, and the motion-system pass
+(these need either a backend, a charting library, or a level of animation
+polish out of scope for this increment) — plus, as always, app store
+submission, which needs a real Apple/Google developer account.
 
 ### Running it
 
@@ -247,5 +274,10 @@ flutter run              # or: flutter test / flutter analyze
 
 ### What's next
 
-Phase 5 (publishing, analytics, settings & full mobile UI) per the
-roadmap — see the project roadmap artifact for the full phase breakdown.
+All six roadmap phases (P0-P5) now have a scaffolded pass. What's left is
+depth, not breadth: the items called out as deferred above (Library,
+Image Studio, agent permissions, the publishing workflow drawer, real
+analytics, motion polish), plus the real backend integrations every mock
+package documents (Supabase auth, provider SDKs, Whisper/Deepgram,
+FastAPI + LangGraph agent, RAG memory) — see the project roadmap artifact
+for the full breakdown.

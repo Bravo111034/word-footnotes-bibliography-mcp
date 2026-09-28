@@ -21,7 +21,7 @@ void main() {
 
     expect(find.text('Good to see you.'), findsOneWidget);
 
-    await tester.tap(find.text('Projects'));
+    await tester.tap(find.text('Library'));
     await tester.pump();
     expect(find.text('EV Battery Market'), findsOneWidget);
   });

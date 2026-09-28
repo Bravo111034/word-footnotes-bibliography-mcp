@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../chat/chat_screen.dart';
 import '../create/create_studio_screen.dart';
+import '../more/more_screen.dart';
 import '../projects/projects_screen.dart';
 import '../tasks/task_center_screen.dart';
 import 'home_screen.dart';
 
-/// Bottom-nav shell tying Home, Create, Tasks, and Projects together so
-/// Phase 4's screens are reachable. The full mobile chrome pass (motion,
-/// sheets, a "More" overflow) is Phase 5 — this is the minimum to navigate.
+/// Mobile bottom nav (spec §46): Home / Chat / Create / Tasks / Library
+/// (Projects, until a dedicated file-manager Library screen lands) / More.
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -20,9 +21,11 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _screens = [
     HomeScreen(),
+    ChatScreen(),
     CreateStudioScreen(),
     TaskCenterScreen(),
     ProjectsScreen(),
+    MoreScreen(),
   ];
 
   @override
@@ -34,9 +37,11 @@ class _HomeShellState extends State<HomeShell> {
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Chat'),
           NavigationDestination(icon: Icon(Icons.auto_awesome_outlined), selectedIcon: Icon(Icons.auto_awesome), label: 'Create'),
           NavigationDestination(icon: Icon(Icons.task_alt_outlined), selectedIcon: Icon(Icons.task_alt), label: 'Tasks'),
-          NavigationDestination(icon: Icon(Icons.folder_outlined), selectedIcon: Icon(Icons.folder), label: 'Projects'),
+          NavigationDestination(icon: Icon(Icons.folder_outlined), selectedIcon: Icon(Icons.folder), label: 'Library'),
+          NavigationDestination(icon: Icon(Icons.more_horiz), selectedIcon: Icon(Icons.more_horiz), label: 'More'),
         ],
       ),
     );

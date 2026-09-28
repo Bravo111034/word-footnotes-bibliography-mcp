@@ -36,8 +36,8 @@ class MemoryManagerScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(AuraSpace.md),
         children: [
-          TextField(
-            decoration: const InputDecoration(
+          const TextField(
+            decoration: InputDecoration(
               hintText: 'Search everything Aura remembers',
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(),
