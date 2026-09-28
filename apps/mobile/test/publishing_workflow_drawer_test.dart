@@ -16,19 +16,25 @@ void main() {
 
     // Step through Content, Destinations, Adapt, Preview (4 "Next" taps),
     // then confirm the Approval permission dialog, then Publish, then Done.
+    // The stepper's content grows taller than the test viewport by the
+    // later steps, so scroll each control into view before tapping it.
     for (var i = 0; i < 4; i++) {
+      await tester.ensureVisible(find.text('Next'));
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
     }
 
+    await tester.ensureVisible(find.text('Approve'));
     await tester.tap(find.text('Approve'));
     await tester.pumpAndSettle();
     expect(find.text('Approve for publishing?'), findsOneWidget);
     await tester.tap(find.text('Approve').last);
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Next'));
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Done'));
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
