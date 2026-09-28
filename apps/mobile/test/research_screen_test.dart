@@ -14,8 +14,10 @@ void main() {
     );
 
     await tester.enterText(find.byType(TextField), 'EV battery supply chains');
+    await tester.ensureVisible(find.text('Start Research'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Start Research'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.byType(ActiveResearchScreen), findsOneWidget);
 
